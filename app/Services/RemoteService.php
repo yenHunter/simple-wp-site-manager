@@ -16,7 +16,7 @@ class RemoteService
     {
         $this->sftp = new SFTP($server->ip_address, $server->port);
         
-        // FIX: Disable timeout so it waits for long downloads
+        // Disable timeout so it waits for long downloads
         $this->sftp->setTimeout(0); 
 
         if (!$this->sftp->login($server->username, $server->ssh_credentials)) {
@@ -38,17 +38,17 @@ class RemoteService
 
         $folder = "my-sites/{$site->domain_name}";
         
-        // 1. Create Directories
+        // Create Directories
         $this->sftp->mkdir($folder, -1, true);
         $this->sftp->mkdir("{$folder}/wp-content");
 
-        // 2. Generate JSON Config (Fail-proof)
+        // Generate JSON Config (Fail-proof)
         $dockerConfig = $this->generateDockerComposeJson($site);
 
-        // 3. Upload docker-compose.json
+        // Upload docker-compose.json
         $this->sftp->put("{$folder}/docker-compose.json", $dockerConfig);
 
-        // 4. Start Container using the JSON file
+        // Start Container using the JSON file
         // We use '-f docker-compose.json' to tell Docker to read the JSON file
         $command = "cd {$folder} && docker-compose -f docker-compose.json up -d --remove-orphans 2>&1";
         

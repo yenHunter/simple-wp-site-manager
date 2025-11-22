@@ -3,7 +3,7 @@ import { Link, Head, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
 export default function ServerIndex({ servers }) {
-    const { flash } = usePage().props; // Handle success messages (optional)
+    const { flash } = usePage().props;
 
     return (
         <AuthenticatedLayout>

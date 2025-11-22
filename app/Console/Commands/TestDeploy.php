@@ -16,23 +16,24 @@ class TestDeploy extends Command
     {
         $this->info('--- Starting Deployment Test ---');
 
-        // 1. Gather Info
+        // Gather Information
+        $name = $this->ask('Enter Server Name');
         $ip = $this->ask('Enter WSL IP Address');
         $user = $this->ask('Enter WSL Username');
         $pass = $this->secret('Enter WSL Password');
 
-        // 2. Create/Save Server (Encrypts password automatically)
+        // Create/Save Server (Encrypts password automatically)
         $server = Server::create([
-            'name' => 'Local WSL',
+            'name' => $name,
             'ip_address' => $ip,
             'port' => 22,
             'username' => $user,
             'ssh_credentials' => $pass
         ]);
 
-        $this->info('✅ Server saved to DB (Password Encrypted).');
+        $this->info('Server saved to DB (Password Encrypted).');
 
-        // 3. Create Site Data
+        // Create Site Data
         $site = Site::create([
             'server_id' => $server->id,
             'domain_name' => 'test-site.local',
@@ -44,28 +45,29 @@ class TestDeploy extends Command
             'status' => 'deploying'
         ]);
 
-        // 4. Attempt Connection & Deployment
-        $this->info('🔄 Connecting via SSH...');
+        // Attempt Connection & Deployment
+        $this->info('Connecting via SSH...');
         
         try {
             // Connect
             $remoteService->connect($server);
-            $this->info('✅ SSH Connected!');
+            $this->info('SSH Connected!');
 
             // Deploy
-            $this->info('🐳 Generating Docker Config & Starting Container...');
+            $this->info('Generating Docker Config & Starting Container...');
             $output = $remoteService->deploySite($site);
             
+            // Output
             $this->info('Output from Server:');
             $this->line($output);
 
             // Update Status
             $site->update(['status' => 'running', 'container_id' => 'test-id']);
-            $this->info('🚀 Site Deployed Successfully!');
+            $this->info('Site Deployed Successfully!');
             $this->info('Visit http://localhost:8081 (if localhost forwarding works) or http://'.$ip.':8081');
 
         } catch (\Exception $e) {
-            $this->error('❌ Error: ' . $e->getMessage());
+            $this->error('Error: ' . $e->getMessage());
             $site->update(['status' => 'failed']);
         }
     }

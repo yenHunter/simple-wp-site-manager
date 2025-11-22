@@ -35,25 +35,25 @@ class SiteController extends Controller
 
     public function store(Request $request, Server $server)
     {
-        // 1. Validate Input
+        // Validate Input
         $validated = $request->validate([
-            'domain_name' => 'required|string|max:255', // e.g. blog.test
-            'port' => 'required|numeric|unique:sites,port', // e.g. 8082
+            'domain_name' => 'required|string|max:255',
+            'port' => 'required|numeric|unique:sites,port',
             'db_name' => 'required|string|alpha_dash',
             'db_user' => 'required|string|alpha_dash',
             'db_password' => 'required|string|min:8',
         ]);
 
-        // 2. Prepare Data
+        // Prepare Data
         $validated['server_id'] = $server->id;
         $validated['container_name'] = Str::slug($validated['domain_name']) . '_' . time();
         $validated['status'] = 'deploying';
         $validated['container_id'] = null;
 
-        // 3. Create Database Entry
+        // Store in Database
         $site = Site::create($validated);
 
-        // 4. Trigger Deployment in Background (or sync for simplicity)
+        // Trigger Deployment in Background
         try {
             $this->remoteService->connect($server);
             $output = $this->remoteService->deploySite($site);

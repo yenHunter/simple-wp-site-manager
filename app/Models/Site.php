@@ -17,7 +17,7 @@ class Site extends Model
     ];
 
     protected $casts = [
-        'db_password' => 'encrypted', // Auto-encrypt/decrypt
+        'db_password' => 'encrypted', // Make password encrypted
     ];
 
     public function server()

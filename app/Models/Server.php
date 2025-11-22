@@ -14,7 +14,7 @@ class Server extends Model
     ];
 
     protected $casts = [
-        'ssh_credentials' => 'encrypted', // Auto-encrypt/decrypt
+        'ssh_credentials' => 'encrypted', // Make password encrypted
     ];
 
     public function sites()

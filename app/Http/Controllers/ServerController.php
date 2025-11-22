@@ -22,14 +22,16 @@ class ServerController extends Controller
 
     public function store(Request $request)
     {
+        // Validate Input
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'ip_address' => 'required|ip',
-            'port' => 'required|numeric',
-            'username' => 'required|string',
-            'ssh_credentials' => 'required|string', // Password or Key
+            'name'              => 'required|string|max:255',
+            'ip_address'        => 'required|ip',
+            'port'              => 'required|numeric',
+            'username'          => 'required|string',
+            'ssh_credentials'   => 'required|string',
         ]);
 
+        // Store in Database
         Server::create($validated);
 
         return redirect()->route('servers.index')

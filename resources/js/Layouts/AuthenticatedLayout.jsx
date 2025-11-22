@@ -10,7 +10,7 @@ export default function AuthenticatedLayout({ children }) {
                         <div className="flex">
                             <div className="shrink-0 flex items-center">
                                 <Link href="/" className="font-bold text-xl text-blue-600">
-                                    WP Manager
+                                    Proshashon
                                 </Link>
                             </div>
                             <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
