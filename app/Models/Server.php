@@ -10,7 +10,7 @@ class Server extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'ip_address', 'port', 'username', 'ssh_credentials'
+        'name', 'ip_address', 'port', 'username', 'ssh_credentials', 'webhook_token'
     ];
 
     protected $casts = [

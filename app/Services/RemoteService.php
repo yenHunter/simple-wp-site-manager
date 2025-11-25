@@ -118,4 +118,64 @@ class RemoteService
 
         return json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
+
+    public function installMonitor(Server $server)
+    {
+        // 1. Generate Token if missing
+        if (!$server->webhook_token) {
+            $server->update(['webhook_token' => \Illuminate\Support\Str::random(60)]);
+        }
+
+        // 2. Config
+        // IMPORTANT: Since you are using Laragon, 'localhost' inside WSL won't work.
+        // We use the APP_URL from .env, but ensure it is accessible from WSL.
+        $url = config('app.url') . '/api/monitor/update';
+        $token = $server->webhook_token;
+        $scriptPath = "~/docker-monitor.sh";
+        $logFile = "/var/log/docker-monitor.log";
+
+        // 3. The Bash Script Content
+        $script = <<<BASH
+            #!/bin/bash
+            API_URL="$url"
+            TOKEN="$token"
+            LOG="$logFile"
+
+            # Collect Docker Statuses as JSON
+            # output format: {"name":"container_name", "state":"running"}
+            DATA=$(docker ps -a --format '{"name":"{{.Names}}", "state":"{{.State}}"}' | paste -sd, -)
+
+            PAYLOAD="{\"containers\": [\$DATA]}"
+
+            # Send to Laravel
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -X POST -H "Content-Type: application/json" -H "X-Server-Token: \$TOKEN" -d "\$PAYLOAD" "\$API_URL")
+
+            # Log (Try /var/log, fallback to user home if permission denied)
+            TS=$(date "+%Y-%m-%d %H:%M:%S")
+            MSG="\$TS - Status Sent. Code: \$HTTP_CODE"
+
+            if [ -w "\$LOG" ]; then
+                echo "\$MSG" >> "\$LOG"
+            else
+                # Try to gain permission or fallback
+                sudo touch "\$LOG" && sudo chmod 666 "\$LOG" 2>/dev/null
+                if [ -w "\$LOG" ]; then
+                    echo "\$MSG" >> "\$LOG"
+                else
+                    echo "\$MSG" >> ~/docker-monitor.log
+                fi
+            fi
+            BASH;
+
+        // 4. Upload Script
+        $this->sftp->put('docker-monitor.sh', $script);
+        $this->sftp->exec('chmod +x docker-monitor.sh');
+
+        // 5. Install Cron Job (Every 5 mins)
+        // We use grep -v to remove old entries of this script to avoid duplicates
+        $cronLine = "*/5 * * * * ~/docker-monitor.sh >/dev/null 2>&1";
+        $this->sftp->exec("(crontab -l 2>/dev/null | grep -v 'docker-monitor.sh'; echo \"$cronLine\") | crontab -");
+
+        return "Monitor installed. Logs at $logFile or ~/docker-monitor.log";
+    }
 }
