@@ -25,6 +25,12 @@ export default function SiteCreate({ server }) {
                 <p className="mb-4 text-gray-600 text-sm">Deploying to: {server.name} ({server.ip_address})</p>
 
                 <form onSubmit={submit}>
+                    {errors.error && (
+                        <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                            <strong className="font-bold">Error! </strong>
+                            <span className="block sm:inline">{errors.error}</span>
+                        </div>
+                    )}
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">Domain / Folder Name</label>

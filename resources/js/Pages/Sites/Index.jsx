@@ -59,7 +59,7 @@ export default function SiteIndex({ server, sites }) {
                                         <td className="px-6 py-4 text-gray-500">{site.port}</td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${site.status === 'running' ? 'bg-green-100 text-green-800' :
-                                                    site.status === 'failed' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                                                site.status === 'failed' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {site.status.toUpperCase()}
                                             </span>
@@ -73,7 +73,11 @@ export default function SiteIndex({ server, sites }) {
                                                 method="delete"
                                                 as="button"
                                                 className="text-red-600 hover:text-red-900"
-                                                onClick="return confirm('Are you sure? This will delete all files permanently.')"
+                                                onClick={(e) => {
+                                                    if (!confirm('Are you sure? This will delete all files permanently.')) {
+                                                        e.preventDefault(); // Stop the request if user clicks Cancel
+                                                    }
+                                                }}
                                             >
                                                 Delete
                                             </Link>

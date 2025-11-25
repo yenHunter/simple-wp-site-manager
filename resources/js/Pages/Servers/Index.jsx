@@ -49,7 +49,19 @@ export default function ServerIndex({ servers }) {
                                             </Link>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button className="text-red-600 hover:text-red-900">Delete</button>
+                                            <Link
+                                                href={route('servers.destroy', server.id)}
+                                                method="delete"
+                                                as="button"
+                                                className="text-red-600 hover:text-red-900"
+                                                onClick={(e) => {
+                                                    if (!confirm('Are you sure? This will remove the server from the dashboard (but will NOT stop the sites on it).')) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                            >
+                                                Delete
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}

@@ -15,9 +15,9 @@ class RemoteService
     public function connect(Server $server)
     {
         $this->sftp = new SFTP($server->ip_address, $server->port);
-        
+
         // Disable timeout so it waits for long downloads
-        $this->sftp->setTimeout(0); 
+        $this->sftp->setTimeout(0);
 
         if (!$this->sftp->login($server->username, $server->ssh_credentials)) {
             throw new Exception("Login Failed. Check credentials for server: {$server->name}");
@@ -37,7 +37,7 @@ class RemoteService
         set_time_limit(0);
 
         $folder = "my-sites/{$site->domain_name}";
-        
+
         // Create Directories
         $this->sftp->mkdir($folder, -1, true);
         $this->sftp->mkdir("{$folder}/wp-content");
@@ -51,18 +51,27 @@ class RemoteService
         // Start Container using the JSON file
         // We use '-f docker-compose.json' to tell Docker to read the JSON file
         $command = "cd {$folder} && docker-compose -f docker-compose.json up -d --remove-orphans 2>&1";
-        
+
         $output = $this->sftp->exec($command);
-        
+
         return $output;
     }
 
     public function removeSite(Site $site)
     {
         $folder = "my-sites/{$site->domain_name}";
-        
+
+        // 1. Stop the site containers
         $this->sftp->exec("cd {$folder} && docker-compose -f docker-compose.json down");
-        $this->sftp->exec("rm -rf {$folder}");
+
+        // 2. Force Delete Files using Docker
+        // We use a temporary Alpine container to perform the deletion.
+        // This bypasses "Permission Denied" errors because Docker runs as root.
+        // We mount the parent 'my-sites' folder to /temp_work and delete the specific site folder.
+
+        $deleteCmd = "docker run --rm -v \"$(pwd)/my-sites:/temp_work\" alpine rm -rf /temp_work/{$site->domain_name}";
+
+        $this->sftp->exec($deleteCmd);
     }
 
     /**
@@ -103,7 +112,7 @@ class RemoteService
             'volumes' => [
                 // Use stdClass to ensure this encodes as an object "db_data: {}" 
                 // instead of an array "db_data: []"
-                'db_data' => new stdClass() 
+                'db_data' => new stdClass()
             ]
         ];
 
