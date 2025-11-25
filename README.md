@@ -1,7 +1,7 @@
 # Simple WP Site Manager
 
-![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel)
-![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)
+![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![Docker](https://img.shields.io/badge/Docker-Manager-2496ED?style=for-the-badge&logo=docker)
 
@@ -25,7 +25,7 @@ Instead of manually editing `docker-compose` files and SSHing into servers, you 
 
 ## 🛠 Tech Stack
 
-*   **Backend:** Laravel 11
+*   **Backend:** Laravel 12
 *   **Frontend:** Inertia.js, React, Tailwind CSS
 *   **Remote Communication:** `phpseclib` (SFTP/SSH)
 *   **Target Environment:** Docker & Docker Compose (running on Ubuntu/Debian/WSL)
@@ -65,7 +65,7 @@ cp .env.example .env
 Open `.env` and update your DB credentials and App URL:
 ```ini
 APP_NAME="WP Manager"
-APP_URL=http://localhost:8000
+APP_URL=http://simple-wp-site-manager.site
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
