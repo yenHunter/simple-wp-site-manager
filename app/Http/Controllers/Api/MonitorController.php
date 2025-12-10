@@ -40,7 +40,6 @@ class MonitorController extends Controller
                 $site->update(['status' => $status]);
             }
         }
-
         return response()->json(['status' => 'ok']);
     }
 }

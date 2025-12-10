@@ -37,7 +37,7 @@ class TestDeploy extends Command
         $site = Site::create([
             'server_id' => $server->id,
             'domain_name' => 'test-site.local',
-            'port' => 8081, // We will access via localhost:8081 later
+            'port' => 8081,
             'container_name' => 'wp_test_site',
             'db_name' => 'wp_db',
             'db_user' => 'wp_user',

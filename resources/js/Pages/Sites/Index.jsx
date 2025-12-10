@@ -75,7 +75,7 @@ export default function SiteIndex({ server, sites }) {
                                                 className="text-red-600 hover:text-red-900"
                                                 onClick={(e) => {
                                                     if (!confirm('Are you sure? This will delete all files permanently.')) {
-                                                        e.preventDefault(); // Stop the request if user clicks Cancel
+                                                        e.preventDefault();
                                                     }
                                                 }}
                                             >

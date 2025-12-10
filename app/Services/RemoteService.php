@@ -65,10 +65,6 @@ class RemoteService
         $this->sftp->exec("cd {$folder} && docker-compose -f docker-compose.json down");
 
         // 2. Force Delete Files using Docker
-        // We use a temporary Alpine container to perform the deletion.
-        // This bypasses "Permission Denied" errors because Docker runs as root.
-        // We mount the parent 'my-sites' folder to /temp_work and delete the specific site folder.
-
         $deleteCmd = "docker run --rm -v \"$(pwd)/my-sites:/temp_work\" alpine rm -rf /temp_work/{$site->domain_name}";
 
         $this->sftp->exec($deleteCmd);
@@ -110,8 +106,6 @@ class RemoteService
                 ]
             ],
             'volumes' => [
-                // Use stdClass to ensure this encodes as an object "db_data: {}" 
-                // instead of an array "db_data: []"
                 'db_data' => new stdClass()
             ]
         ];
@@ -127,8 +121,6 @@ class RemoteService
         }
 
         // 2. Config
-        // IMPORTANT: Since you are using Laragon, 'localhost' inside WSL won't work.
-        // We use the APP_URL from .env, but ensure it is accessible from WSL.
         $url = config('app.url') . '/api/monitor/update';
         $token = $server->webhook_token;
         $scriptPath = "~/docker-monitor.sh";
@@ -172,7 +164,6 @@ class RemoteService
         $this->sftp->exec('chmod +x docker-monitor.sh');
 
         // 5. Install Cron Job (Every 5 mins)
-        // We use grep -v to remove old entries of this script to avoid duplicates
         $cronLine = "*/5 * * * * ~/docker-monitor.sh >/dev/null 2>&1";
         $this->sftp->exec("(crontab -l 2>/dev/null | grep -v 'docker-monitor.sh'; echo \"$cronLine\") | crontab -");
 
